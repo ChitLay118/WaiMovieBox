@@ -1,0 +1,33 @@
+name: Update Movie Data
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # နေ့တိုင်း မြန်မာစံတော်ချိန် မနက် ၆ နာရီခွဲ (UTC 00:00) မှာ run မယ်
+  workflow_dispatch:      # ကိုယ်တိုင် နှိပ်ပြီး run ချင်တဲ့အခါ သုံးဖို့
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Libraries
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Run Scraper Script
+        run: python scraper.py
+
+      - name: Commit and Push Results
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add movies.json
+          git commit -m "Auto Update: Latest movies list" || exit 0
+          git push
